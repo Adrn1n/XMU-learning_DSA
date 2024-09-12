@@ -46,21 +46,26 @@ short Move(long long const*A,short n,short m)
             long long *q=(long long *)A+(p-A)%m;
             Swap(p,q);
         }
-        Move(A,m,(short)(m-((n-m-1)%m+1)));
     }
     return 0;
 }
 
 int main()
 {
-    short N=0;
+    short N=0,n=0;
     long long M=0;
     scanf("%hd%lld",&N,&M);
     long long A[N];
     for(long long *p=A; p-A<N; ++p)
         scanf("%lld",p);
     M%=N;
-    Move(A,N,(short)M);
+    n=N;
+    while(M)
+    {
+        Move(A,n,(short)M);
+        short tmp=n;
+        n=(short)M,M=M-((tmp-M-1)%M+1);
+    }
     for(long long *p=A; p-A<N-1; ++p)
         printf("%lld ",*p);
     printf("%lld\n",A[N-1]);
