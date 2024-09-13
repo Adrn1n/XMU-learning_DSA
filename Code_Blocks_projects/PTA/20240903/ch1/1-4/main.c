@@ -40,13 +40,11 @@ short Swap(long long *a,long long *b)
 short Move(long long const*A,short n,short m)
 {
     if(m)
-    {
         for(long long *p=(long long *)A+m; p-A<n; ++p)
         {
             long long *q=(long long *)A+(p-A)%m;
             Swap(p,q);
         }
-    }
     return 0;
 }
 

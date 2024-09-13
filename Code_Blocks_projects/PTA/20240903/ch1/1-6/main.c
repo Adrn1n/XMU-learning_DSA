@@ -49,7 +49,7 @@ ll_node *ll_node_push_back(const long long val,ll_node **const head,ll_node **co
         (*tail)->next=cur;
     *tail=cur;
     if(!(*head))
-        *head=*tail;
+        *head=cur;
     return cur;
 }
 
