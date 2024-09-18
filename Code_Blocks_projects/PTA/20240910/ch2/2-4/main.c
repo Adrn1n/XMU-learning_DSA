@@ -138,13 +138,46 @@ int main()
 /* 你的代码将被嵌在这里 */
 List Read()
 {
-    return 0;
+    List head=malloc(sizeof(struct Node)),tail=head;
+    head->Data=0,head->Next=NULL;
+    ElementType cnt=0;
+    scanf("%d",&cnt);
+    head->Data=cnt;
+    while(cnt--)
+    {
+        List node=malloc(sizeof(struct Node));
+        scanf("%d",&(node->Data)),node->Next=NULL;
+        tail->Next=node,tail=tail->Next;
+    }
+    return head;
 }
 void Print( List L )
 {
+    if(L)
+    {
+        L=L->Next;
+        while(L)
+        {
+            printf("%d ",L->Data);
+            L=L->Next;
+        }
+    }
+    printf("\n");
 }
 //Begin
 ElementType Find( List L, int m )
 {
-    return 0;
+    if(L&&(m>0))
+    {
+        List p=L->Next,q=p;
+        while((m--)&&q)
+            q=q->Next;
+        if(m<0)
+        {
+            while(q)
+                p=p->Next,q=q->Next;
+            return p->Data;
+        }
+    }
+    return ERROR;
 }
