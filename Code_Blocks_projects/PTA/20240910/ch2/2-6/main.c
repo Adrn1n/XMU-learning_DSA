@@ -44,7 +44,7 @@ typedef struct Node_
     struct Node_ *next;
 } Node;
 
-Node *Push_start(Node **ptr_start,Node **ptr_end,const ele_type val)
+Node *cLinkedList_push_start(Node **const ptr_start,Node **const ptr_end,const ele_type val)
 {
     Node *node=malloc(sizeof(Node));
     node->val=val;
@@ -55,13 +55,62 @@ Node *Push_start(Node **ptr_start,Node **ptr_end,const ele_type val)
     return (*ptr_start=node);
 }
 
+ele_type cLinkedList_rm(Node **const ptr_start,Node **const ptr_end,const idx_type idx)
+{
+    if((*ptr_start)&&(*ptr_end))
+    {
+        if(idx>0)
+        {
+            Node *p=*ptr_start,*q=p->next;
+            for(idx_type i=0; i<(idx-1); ++i)
+                p=p->next,q=q->next;
+            ele_type res=q->val;
+            if(q==*ptr_start)
+                return cLinkedList_rm(ptr_start,ptr_end,0);
+            else
+            {
+                p->next=q->next;
+                q->val=0,q->next=NULL,free(q);
+                if(q==*ptr_end)
+                    *ptr_end=p;
+            }
+            return res;
+        }
+        else if(!idx)
+        {
+            ele_type res=(*ptr_start)->val;
+            (*ptr_end)->next=(*ptr_start)->next;
+            (*ptr_start)->val=0,(*ptr_start)->next=NULL,free(*ptr_start);
+            if(*ptr_start==*ptr_end)
+                (*ptr_start)=(*ptr_end)=NULL;
+            else
+                (*ptr_start)=(*ptr_end)->next;
+            return res;
+        }
+        else
+            return -1;
+    }
+    else
+        return -1;
+}
+
 int main()
 {
-    idx_type N=0,p=0;
+    idx_type N=0,p=0,tmp=0;
     scanf("%hd",&N);
     Node *Start=NULL,*End=Start;
     for(idx_type i=N; i>0; --i)
-        Push_start(&Start,&End,i);
+        cLinkedList_push_start(&Start,&End,i);
     scanf("%hd",&p);
+    for(idx_type i=N; i>0; --i)
+    {
+        tmp=(short)((tmp+p-1)%i);
+        ele_type out_val=cLinkedList_rm(&Start,&End,tmp);
+        if(i>1)
+            printf("%hd ",out_val);
+        else
+            printf("%hd",out_val);
+    }
+    printf("\n");
     return 0;
 }
