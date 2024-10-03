@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1727924642 source:e:\files\xmu\learning\dsa\code_blocks_projects\pta\20240910\ch2\2-10\main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+
