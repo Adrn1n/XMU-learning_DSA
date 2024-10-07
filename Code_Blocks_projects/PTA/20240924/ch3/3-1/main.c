@@ -222,21 +222,91 @@ int main()
 /* 你的代码将被嵌在这里 */
 Stack CreateStack( int MaxSize )
 {
-    return 0;
+    if(MaxSize>0)
+    {
+        Stack DStack=malloc(sizeof(struct SNode));
+        DStack->Data=malloc(MaxSize*sizeof(ElementType)),DStack->Top1=-1,DStack->Top2=MaxSize,DStack->MaxSize=MaxSize;
+        return DStack;
+    }
+    else
+        return NULL;
 }
 bool Push( Stack S, ElementType X, int Tag )
 {
-    return 0;
+    if(S&&((S->Top1)>=-1)&&((S->Top2)<=(S->MaxSize)))
+    {
+        if((S->Top1)<((S->Top2)-1))
+        {
+            if(Tag==1)
+                (S->Data)[++(S->Top1)]=X;
+            else if(Tag==2)
+                (S->Data)[--(S->Top2)]=X;
+            else
+                return false;
+            return true;
+        }
+        else if((S->Top1)==((S->Top2)-1))
+            printf("Stack Full\n");
+        else
+            printf("ERROR\n");
+    }
+    return false;
 }
 ElementType Pop( Stack S, int Tag )
 {
-    return 0;
+    if(S&&((S->Top1)>=-1)&&((S->Top2)<=(S->MaxSize))&&((S->Top1)<=((S->Top2)-1)))
+    {
+        if(Tag==1)
+            if((S->Top1)>=0)
+                return (S->Data)[(S->Top1)--];
+            else
+                printf("Stack %d Empty\n",Tag);
+        else if(Tag==2)
+        {
+            if((S->Top2)<(S->MaxSize))
+                return (S->Data)[(S->Top2)++];
+            else
+                printf("Stack %d Empty\n",Tag);
+        }
+    }
+    return ERROR;
 }
 
+#include <string.h>
 Operation GetOp()
 {
-    return 0;
+    char S[5]= {0},*PUSH="Push",*POP="Pop",*END="End";
+    scanf("%s",S);
+    if(!strcmp(S,PUSH))
+        return push;
+    else if(!strcmp(S,POP))
+        return pop;
+    else if(!strcmp(S,END))
+        return end;
+    else
+        return ERROR;
 }
 void PrintStack( Stack S, int Tag )
 {
+    if(S&&((S->Top1)>=-1)&&((S->Top2)<=(S->MaxSize))&&((S->Top1)<=((S->Top2)-1)))
+    {
+        printf("Pop from Stack ");
+        if(Tag==1)
+        {
+            printf("1: ");
+            while((S->Top1)>=0)
+                printf("%d ",Pop(S,Tag));
+            printf("\n");
+            return;
+        }
+        else if(Tag==2)
+        {
+            printf("2: ");
+            while((S->Top2)<(S->MaxSize))
+                printf("%d ",Pop(S,Tag));
+            printf("\n");
+            return;
+        }
+    }
+    printf("ERROR\n");
 }
