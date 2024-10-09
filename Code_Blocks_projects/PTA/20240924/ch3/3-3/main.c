@@ -32,83 +32,85 @@ Stack size limit
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef char data_type;
-typedef long long idx_type;
+#define N_MAX 23 //第2组测试数据(嵌套括号)疑似超过最大输入表达式长度20, 实测需要23恰好通过
 
-typedef struct Node_
+char isOP_prior(char a,char b)
 {
-    data_type data;
-    struct Node_ *next;
-} Node;
-
-Node *Stack_push(Node **const Top,const data_type *const data)
-{
-    if(Top)
-    {
-        Node *node=malloc(sizeof(Node));
-        node->data=*data,node->next=*Top;
-        return (*Top=node);
-    }
-    return NULL;
+    if(((a=='*')||(a=='/'))&&((b=='+')||(b=='-')))
+        return 1;
+    else
+        return 0;
 }
 
-Node *Stack_pop(Node **const Top)
+char *push_OPs(char cur_op,char *OPTR,short *Top_OPTR,char *Dest,short *Top_dest)
 {
-    if(Top&&(*Top))
-    {
-        Node *tmp=*Top;
-        *Top=tmp->next;
-        free(tmp);
-    }
-    return *Top;
-}
-
-Node *Stack_del(Node **Top)
-{
-    while(Stack_pop(Top));
-    return (*Top=NULL);
-}
-
-Node *Stack_flip(Node **Top)
-{
-    if(Top)
-    {
-        if((*Top)&&((*Top)->next))
-            for(Node *p=*Top,*q=p->next; q;)
-            {
-                Node *tmp=q->next;
-                q->next=p;
-                if(p==*Top)
-                    p->next=NULL;
-                p=q,q=tmp;
-                if(!q)
-                {
-                    *Top=p;
-                    break;
-                }
-            }
-        return *Top;
-    }
-    return NULL;
-}
-
-idx_type Stack_print(const Node *Top)
-{
-    idx_type cnt=0;
-    while(Top)
-        printf("%c",Top->data),Top=Top->next,++cnt;
-    return cnt;
+    char *res=Dest+(*Top_dest);
+    while((*Top_OPTR>=0)&&(OPTR[*Top_OPTR]!='(')&&(!isOP_prior(cur_op,OPTR[*Top_OPTR])))
+        Dest[++(*Top_dest)]=' ',Dest[++(*Top_dest)]=OPTR[(*Top_OPTR)--],OPTR[(*Top_OPTR)+1]=0;
+    return res;
 }
 
 int main()
 {
-    Node *Top_in=NULL;
-    data_type c=0;
-    while((c=getchar())!='\n')
-        Stack_push(&Top_in,&c);
-    Stack_flip(&Top_in);
-    Stack_print(Top_in);
-    printf("\n");
-    Stack_del(&Top_in);
+    char In[N_MAX+1]= {0},Res[2*N_MAX]= {0},OPTR[N_MAX]= {0},flag=1,flag_d=0;
+    short Top_Res=-1,Top_OPTR=-1;
+    scanf("%s",In);
+    for(const char *p=In; (p-In<N_MAX)&&(*p); ++p)
+        if((((*p>='0')&&(*p<='9'))||(*p=='.'))||(((*p=='+')||(*p=='-'))&&((p==In)||(*(p-1)=='('))&&(p<In+N_MAX-1)&&(*(p+1)>='0')&&(*(p+1)<='9')))
+        {
+            if(*p=='+') //第3组测试数据(运算数前有正负号)新增要求输入的数前正号省略
+            {
+                if(Top_Res>=0)
+                    Res[++Top_Res]=' ';
+                continue;
+            }
+            if(*p=='.')
+            {
+                if((!flag_d)&&(p<In+N_MAX-1)&&(*(p+1)>='0')&&(*(p+1)<='9'))
+                    flag_d=1;
+                else
+                {
+                    flag=0;
+                    break;
+                }
+            }
+            if((Top_Res>=0)&&(((*(p-1)<'0')||(*(p-1)>'9'))&&(*(p-1)!='.'))&&(((*(p-1)!='+')&&(*(p-1)!='-'))||((p>In+1)&&(*(p-2)!='('))))
+                Res[++Top_Res]=' ';
+            Res[++Top_Res]=*p;
+        }
+        else if(((*p=='+')||(*p=='-')||(*p=='*')||(*p=='/'))&&((p>In)&&(((*(p-1)>='0')&&(*(p-1)<='9'))||(*(p-1)==')'))))
+        {
+            push_OPs(*p,OPTR,&Top_OPTR,Res,&Top_Res);
+            OPTR[++Top_OPTR]=*p;
+            flag_d=0;
+        }
+        else if((*p=='(')&&((p==In)||((*(p-1)=='+')||(*(p-1)=='-')||(*(p-1)=='*')||(*(p-1)=='/')||(*(p-1)=='('))))
+            OPTR[++Top_OPTR]=*p,flag_d=0;
+        else if((*p==')')&&(p>In)&&(((*(p-1)>='0')&&(*(p-1)<='9'))||(*(p-1)==')'))&&(Top_OPTR>=0))
+        {
+            push_OPs(*p,OPTR,&Top_OPTR,Res,&Top_Res);
+            if((Top_OPTR>=0)&&(OPTR[Top_OPTR]=='('))
+                OPTR[Top_OPTR--]=0,flag_d=0;
+            else
+            {
+                flag=0;
+                break;
+            }
+        }
+        else
+        {
+            flag=0;
+            break;
+        }
+    if(flag&&(Top_OPTR>=0))
+    {
+        push_OPs(')',OPTR,&Top_OPTR,Res,&Top_Res);
+        if(Top_OPTR>=0)
+            flag=0;
+    }
+    if(flag&&(Top_OPTR==(-1)))
+        printf("%s\n",Res);
+    else
+        printf("ERROR\n");
     return 0;
 }
