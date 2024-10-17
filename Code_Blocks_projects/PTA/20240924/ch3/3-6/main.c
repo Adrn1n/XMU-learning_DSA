@@ -112,56 +112,28 @@ cnt_type print_ans(const Node *Top,const idx_type n)
     while(Top)
     {
         for(data_type *p=Top->data; p-(data_type *)(Top->data)<n; ++p)
-        {
-            idx_type i=0;
-            while(((*p)--)>0)
-            {
-                if(!(*p))
-                    printf("Q");
-                else
-                    printf(". ");
-                ++i;
-            }
-            if(i>0)
-            {
-                while(i++<n)
-                    printf(" .");
-                printf("\n");
-            }
-            else
-                return -1;
-        }
+            printf("%c",*p+'0');
         Top=Top->next;
-        if(Top)
-            printf("\n");
+        printf("\n");
         ++cnt;
     }
     return cnt;
 }
 
-char judge_queens_pre(const data_type *Solution,const idx_type n)
+Node *mk_A_n_m(Node **const Res,const idx_type n,const idx_type m)
 {
-    if(n>0)
-    {
-        for(const data_type *p=Solution; p-Solution<n-1; ++p)
-            if((*p==Solution[n-1])||((n-1-(p-Solution))==abs(*p-Solution[n-1])))
-                return 0;
-        return 1;
-    }
-    else
-        return -1;
-}
-
-Node *solve_nQueens(Node **const Solutions,const idx_type n)
-{
-    *Solutions=NULL;
-    data_type Table[n];
+    *Res=NULL;
+    data_type Table[m];
     char Used[n];
     for(idx_type i=0; i<n; ++i)
-        Table[i]=Used[i]=0;
+    {
+        if(i<m)
+            Table[i]=0;
+        Used[i]=0;
+    }
     idx_type top=0;
     do
-        if((top>=0)&&(top<n))
+        if((top>=0)&&(top<m))
         {
             char flag=1;
             data_type *p=Table+top;
@@ -179,38 +151,34 @@ Node *solve_nQueens(Node **const Solutions,const idx_type n)
                 return NULL;
             for(++*p; *p<=n; ++*p)
                 if(!Used[*p-1])
-                    if(judge_queens_pre(Table,(idx_type)(top+1))==1)
+                {
+                    if(top==m-1)
+                        Stack_push(Res,Table,(size_type)(n*sizeof(data_type)));
+                    else
                     {
-                        if(top==n-1)
-                            Stack_push(Solutions,Table,(size_type)(n*sizeof(data_type)));
-                        else
-                        {
-                            Used[*p-1]=1;
-                            ++top,flag=0;
-                            break;
-                        }
+                        Used[*p-1]=1;
+                        ++top,flag=0;
+                        break;
                     }
+                }
             if(flag)
                 Table[top--]=0;
         }
         else
             return NULL;
     while(top>=0);
-    Stack_flip(Solutions);
-    return *Solutions;
+    Stack_flip(Res);
+    return *Res;
 }
 
 int main()
 {
     idx_type n=0;
     scanf("%hd",&n);
-    Node *Res=NULL;
-    solve_nQueens(&Res,n);
-    cnt_type cnt=print_ans(Res,n);
-    if(!cnt)
-        printf("None\n");
-    else if(cnt<0)
+    Node *Ans=NULL;
+    mk_A_n_m(&Ans,n,n);
+    if(print_ans(Ans,n)<0)
         printf("ERROR\n");
-    Stack_del(&Res);
+    Stack_del(&Ans);
     return 0;
 }
