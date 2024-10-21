@@ -66,75 +66,99 @@ typedef struct wTmInfo_dataT_
     tmT last;
 } wTmInfo_dataT;
 
-char print_wTmInfo(wTmInfo_dataT info)
+char fetch_cstm_tm_data(cstm_tm_dataT *const cstm_tm_data)
 {
-    printf("%.1lf %.lf %.lf",info.avg,info.max,info.last);
-    return 1;
-}
-
-char print_wd_servN(wd_tm_dataT *Time_wd,idxT n,idxT m)
-{
-    for(wd_tm_dataT (*p)[m]=(wd_tm_dataT(*)[m])Time_wd; p-(wd_tm_dataT(*)[m])Time_wd<n; ++p)
+    if(cstm_tm_data)
     {
-        idxT cnt=0;
-        for(wd_tm_dataT *q=*p; q-(*p)<m; ++cnt,++q)
-            if((q->arr_t)<0)
-                break;
-        printf("%hd",cnt);
-        if(p-(wd_tm_dataT(*)[m])Time_wd<(n-1))
-            printf(" ");
+        scanf("%lf%lf",&(cstm_tm_data->arr_t),&(cstm_tm_data->procs_t));
+        return 1;
     }
-    return 0;
+    else
+        return -1;
 }
 
-wTmInfo_dataT fetch_wTmInfo(wd_tm_dataT *Time_wd,idxT n,cstm_tm_dataT *Time_cstm,idxT m)
+char print_wTmInfo(const wTmInfo_dataT *const info)
 {
-    wTmInfo_dataT res= {0,0,0};
-    wd_tm_dataT *wd_next[n];
-    for(wd_tm_dataT **p=wd_next; p-wd_next<n; ++p)
-        *p=Time_wd+(p-wd_next)*m;
-    for(cstm_tm_dataT *p=Time_cstm; p-Time_cstm<m; ++p)
+    if(info)
     {
-        if(p->procs_t>60)
-            p->procs_t=60;
-        wd_tm_dataT **ptr=wd_next;
-        tmT wTm=-1,tmp=0;
-        for(wd_tm_dataT **q=wd_next; q-wd_next<n; ++q)
-            if(*q-Time_wd==(q-wd_next)*m)
-            {
-                (*q)->arr_t=p->arr_t,(*q)->procs_t=p->procs_t,++*q;
-                wTm=0;
-                break;
-            }
-            else
-            {
-                tmp=((*q-1)->arr_t+(*q-1)->procs_t);
-                if(tmp<=(p->arr_t))
+        printf("%.1lf %.lf %.lf",info->avg,info->max,info->last);
+        return 1;
+    }
+    else
+        return -1;
+}
+
+char print_wd_servN(const wd_tm_dataT *const Time_wd,const idxT n,const idxT m)
+{
+    if(Time_wd)
+    {
+        for(const wd_tm_dataT (*p)[m]=(wd_tm_dataT(*)[m])Time_wd; p-(wd_tm_dataT(*)[m])Time_wd<n; ++p)
+        {
+            idxT cnt=0;
+            for(const wd_tm_dataT *q=*p; q-(*p)<m; ++cnt,++q)
+                if((q->arr_t)<0)
+                    break;
+            printf("%hd",cnt);
+            if((p-(wd_tm_dataT(*)[m])Time_wd)<(n-1))
+                printf(" ");
+        }
+        return 1;
+    }
+    else
+        return -1;
+}
+
+char fetch_wTmInfo(wTmInfo_dataT *const res,wd_tm_dataT *const Time_wd,const idxT n,cstm_tm_dataT *const Time_cstm,const idxT m)
+{
+    if(res&&Time_wd&&Time_cstm&&(n>0)&&(m>=0))
+    {
+        (res->avg)=(res->max)=(res->last)=0;
+        wd_tm_dataT *wd_next[n];
+        for(wd_tm_dataT **p=wd_next; p-wd_next<n; ++p)
+            *p=Time_wd+(p-wd_next)*m;
+        for(cstm_tm_dataT *p=Time_cstm; p-Time_cstm<m; ++p)
+        {
+            if(p->procs_t>60)
+                p->procs_t=60;
+            wd_tm_dataT **ptr=wd_next;
+            tmT Tm=-1;
+            for(wd_tm_dataT **q=wd_next; q-wd_next<n; ++q)
+                if((*q-Time_wd)==(q-wd_next)*m)
                 {
                     (*q)->arr_t=p->arr_t,(*q)->procs_t=p->procs_t,++*q;
-                    wTm=0;
+                    Tm=0;
                     break;
                 }
-                else if((wTm<0)||(tmp<wTm))
-                    wTm=tmp,ptr=q;
+                else if(((*q-Time_wd)>(q-wd_next)*m)&&((*q-Time_wd)<((q-wd_next+1)*m)))
+                {
+                    tmT tmp=((*q-1)->arr_t)+((*q-1)->procs_t);
+                    if(tmp<=(p->arr_t))
+                    {
+                        (*q)->arr_t=p->arr_t,(*q)->procs_t=p->procs_t,++*q;
+                        Tm=0;
+                        break;
+                    }
+                    else if((Tm<0)||(tmp<Tm))
+                        Tm=tmp,ptr=q;
+                }
+                else
+                    return -1;
+            if(Tm>0)
+            {
+                (*ptr)->arr_t=Tm,(*ptr)->procs_t=p->procs_t,++*ptr;
+                Tm-=(p->arr_t);
+                res->avg+=Tm;
+                res->max=((res->max)<Tm)?Tm:(res->max);
             }
-        if(wTm>0)
-        {
-            (*ptr)->arr_t=p->arr_t,(*ptr)->procs_t=p->procs_t,++*ptr;
-            tmp=wTm-(p->arr_t);
-            res.avg+=tmp;
-            res.max=((res.max)<tmp)?tmp:(res.max);
+            else if(Tm<0)
+                return -1;
+            Tm+=(p->arr_t+p->procs_t);
+            res->last=(Tm>(res->last))?Tm:(res->last);
         }
-        else if(wTm<0)
-        {
-            res.avg=res.max=res.last=-1;
-            return res;
-        }
-        tmp=wTm+p->arr_t+p->procs_t;
-        res.last=(tmp>(res.last))?tmp:(res.last);
+        (res->avg)/=m;
+        return 1;
     }
-    res.avg/=m;
-    return res;
+    return -1;
 }
 
 int main()
@@ -143,15 +167,16 @@ int main()
     scanf("%hd",&N);
     cstm_tm_dataT Time_cstm[N];
     for(cstm_tm_dataT *p=Time_cstm; p-Time_cstm<N; ++p)
-        scanf("%lf%lf",&(p->arr_t),&(p->procs_t));
+        fetch_cstm_tm_data(p);
     scanf("%hd",&K);
     wd_tm_dataT Time_wd[K][N];
     for(wd_tm_dataT (*p)[N]=Time_wd; p-Time_wd<K; ++p)
         for(wd_tm_dataT *q=*p; q-*p<N; ++q)
             q->arr_t=q->procs_t=-1;
-    print_wTmInfo(fetch_wTmInfo(*Time_wd,K,Time_cstm,N));
-    printf("\n");
-    print_wd_servN(*Time_wd,K,N);
-    printf("\n");
+    wTmInfo_dataT wTmInfo= {0,0,0};
+    if((fetch_wTmInfo(&wTmInfo,*Time_wd,K,Time_cstm,N)==1)&&(print_wTmInfo(&wTmInfo)==1)&&(printf("\n"))&&(print_wd_servN(*Time_wd,K,N)==1))
+        printf("\n");
+    else
+        printf("ERROR\n");
     return 0;
 }
