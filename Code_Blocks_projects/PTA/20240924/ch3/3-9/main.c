@@ -303,13 +303,13 @@ int main()
 /* 你的代码将被嵌在这里 */
 bool Push( ElementType X, Deque D )
 {
-    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<=(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<=(D->MaxSize)))
+    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<(D->MaxSize)))
     {
         if(D->Front)
         {
             if(((D->Front)-1)!=(D->Rear))
             {
-                *((D->Data)+(--(D->Front)))=X;
+                (D->Data)[--(D->Front)]=X;
                 return true;
             }
         }
@@ -317,7 +317,7 @@ bool Push( ElementType X, Deque D )
         {
             if((D->Rear)<((D->MaxSize)-1))
             {
-                (D->Front)=(D->MaxSize)-1,*((D->Data)+(D->Front))=X;
+                (D->Front)=(D->MaxSize)-1,(D->Data)[D->Front]=X;
                 return true;
             }
         }
@@ -327,25 +327,25 @@ bool Push( ElementType X, Deque D )
 ElementType Pop( Deque D )
 {
     ElementType data=ERROR;
-    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<=(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<=(D->MaxSize)))
+    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<(D->MaxSize)))
         if((D->Front)!=(D->Rear))
         {
             if((D->Front)<((D->MaxSize)-1))
-                data=*((D->Data)+((D->Front)++));
+                data=(D->Data)[(D->Front)++];
             else
-                data=*((D->Data)+(D->Front)),D->Front=0;
+                data=(D->Data)[D->Front],D->Front=0;
         }
     return data;
 }
 bool Inject( ElementType X, Deque D )
 {
-    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<=(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<=(D->MaxSize)))
+    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<(D->MaxSize)))
     {
-        if((D->Rear)<(D->MaxSize))
+        if((D->Rear)<((D->MaxSize)-1))
         {
             if(((D->Rear)+1)!=(D->Front))
             {
-                *((D->Data)+((D->Rear)++))=X;
+                (D->Data)[(D->Rear)++]=X;
                 return true;
             }
         }
@@ -353,7 +353,7 @@ bool Inject( ElementType X, Deque D )
         {
             if(D->Front)
             {
-                *((D->Data)+(D->Rear))=X,D->Rear=0;
+                (D->Data)[D->Rear]=X,D->Rear=0;
                 return true;
             }
         }
@@ -363,13 +363,13 @@ bool Inject( ElementType X, Deque D )
 ElementType Eject( Deque D )
 {
     ElementType data=ERROR;
-    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<=(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<=(D->MaxSize)))
+    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<(D->MaxSize)))
         if((D->Front)!=(D->Rear))
         {
             if(D->Rear)
-                data=*((D->Data)+(--(D->Rear)));
+                data=(D->Data)[--(D->Rear)];
             else
-                D->Rear=D->MaxSize,data=*((D->Data)+(D->Rear));
+                D->Rear=D->MaxSize-1,data=(D->Data)[D->Rear];
         }
     return data;
 }
@@ -396,10 +396,10 @@ Operation GetOp()
 void PrintDeque( Deque D )
 {
     printf("Inside Deque:");
-    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<=(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<=(D->MaxSize)))
+    if(D&&(D->Data)&&((D->MaxSize)>1)&&((D->Front)>=0)&&((D->Front)<(D->MaxSize))&&((D->Rear)>=0)&&((D->Rear)<(D->MaxSize)))
         for(Position i=D->Front; i!=D->Rear;)
         {
-            printf(" %d",*((D->Data)+i));
+            printf(" %d",(D->Data)[i]);
             if(i<(D->MaxSize))
                 ++i;
             else
