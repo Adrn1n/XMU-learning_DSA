@@ -77,7 +77,7 @@ idxT KMP_getNextPtr(const char **const NextPtr,const char *const str)
     return cnt;
 }
 
-char *str_uRingPatSrch(const char *const str,const char *const pat,const char *const pat_end)
+char *str_RingPatSrch(const char *const str,const char *const pat,const char *const pat_end)
 {
     if(str&&(*str)&&pat&&(*pat)&&(pat_end-pat>0))
     {
@@ -130,7 +130,7 @@ int main()
         char revs_V[len_V];
         for(char *tmp=revs_V; tmp-revs_V<len_V; ++tmp)
             *tmp=*--ptr;
-        if(str_uRingPatSrch(P,V,V+len_V)||(str_uRingPatSrch(P,revs_V,revs_V+len_V)))
+        if(str_RingPatSrch(P,V,V+len_V)||(str_RingPatSrch(P,revs_V,revs_V+len_V)))
             printf("YES\n");
         else
             printf("NO\n");
