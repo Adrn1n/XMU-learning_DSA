@@ -11,7 +11,7 @@ Organization 厦门大学
 现在，他们的比赛正式开始，由你来写一个程序充当裁判。
 输入格式:
 
-共三行，每行是一句话，长度均不超过106。
+共三行，每行是一句话，长度均不超过10^6。
 
 第一行是路人说的话。第二行是小CC说的话。第三行是小XX说的话。
 输出格式:
@@ -40,8 +40,78 @@ Stack size limit
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_N_Arr 150000
+
+typedef int idxT;
+
+idxT KMP_getNext(const char **const Next,const char *const str)
+{
+    idxT cnt=0;
+    if(Next&&str&&(*str))
+    {
+        for(const char *p=str; *p; ++p)
+            if(p==str)
+                *Next=NULL,++cnt;
+            else
+            {
+                const idxT idx=(idxT)(p-str);
+                const char *ptr=Next[idx-1];
+                while(ptr&&(*ptr!=*(p-1)))
+                    ptr=Next[ptr-str];
+                if(ptr)
+                    ++ptr;
+                else
+                    ptr=str;
+                Next[idx]=ptr,++cnt;
+            }
+    }
+    return cnt;
+}
+
+idxT str_MaxOvrlp(const char *const A,const char *const B,const char *const B_end)
+{
+    idxT max=0;
+    if(A&&(*A)&&B&&(*B)&&(B<B_end))
+    {
+        const idxT len_B=(idxT)(B_end-B);
+        const char *Next[len_B+1],*ptr=NULL;
+        KMP_getNext(Next,B);
+        for(ptr=Next[len_B-1]; ptr&&(*ptr!=*(B_end-1));)
+            ptr=Next[ptr-B];
+        if(ptr)
+            ++ptr;
+        Next[len_B]=ptr;
+        for(const char *p=A,*q=B;; ++p)
+            if(*p&&(*q)&&(*p==*q))
+                ++q;
+            else
+            {
+                if(*p)
+                {
+                    q=Next[q-B];
+                    while(q&&(*q!=*p))
+                        q=Next[q-B];
+                    if(q)
+                        ++q;
+                    else
+                        q=B;
+                }
+                else
+                {
+                    max=(idxT)(q-B);
+                    break;
+                }
+            }
+    }
+    return max;
+}
+
 int main()
 {
-    printf("Hello world!\n");
+    char S[MAX_N_Arr]= {0},CC[MAX_N_Arr]= {0},XX[MAX_N_Arr]= {0},*CC_end=CC,*XX_end=XX;
+    scanf("%s%s%s",S,CC,XX);
+    for(; *CC_end&&(CC_end-CC<MAX_N_Arr); ++CC_end);
+    for(; *XX_end&&(XX_end-XX<MAX_N_Arr); ++XX_end);
+    printf("%d %d\n",str_MaxOvrlp(S,CC,CC_end),str_MaxOvrlp(S,XX,XX_end));
     return 0;
 }

@@ -49,19 +49,27 @@ Stack size limit
 
 typedef short idxT;
 
-idxT KMP_getNextPtr(const char **const NextPtr,const char *const str)
+idxT KMP_getNextPtr(const char **const NextPtr,const char *const str,const char *const str_end)
 {
     idxT cnt=0;
-    if(NextPtr&&str&&(*str))
+    if(NextPtr&&str&&(*str)&&(str<str_end))
     {
+        const char *Next[str_end-str];
         for(const char *p=str; *p; ++p)
             if(p==str)
-                *NextPtr=NULL,++cnt;
+                *Next=NULL,*NextPtr=NULL,++cnt;
             else
             {
-                const char *ptr=NextPtr[p-str-1];
+                const idxT idx=(idxT)(p-str);
+                const char *ptr=NextPtr[idx-1];
+                while(ptr&&(*ptr!=*(p-1)))
+                    ptr=Next[ptr-str];
+                if(ptr)
+                    Next[idx]=ptr+1;
+                else
+                    Next[idx]=str;
                 while(ptr&&((*ptr!=*(p-1))||(*(ptr+1)==*p)))
-                    ptr=NextPtr[ptr-str];
+                    ptr=Next[ptr-str];
                 if(ptr)
                     ++ptr;
                 else
@@ -71,7 +79,7 @@ idxT KMP_getNextPtr(const char **const NextPtr,const char *const str)
                     else
                         ptr=str;
                 }
-                NextPtr[p-str]=ptr,++cnt;
+                NextPtr[idx]=ptr,++cnt;
             }
     }
     return cnt;
@@ -79,13 +87,13 @@ idxT KMP_getNextPtr(const char **const NextPtr,const char *const str)
 
 char *str_RingPatSrch(const char *const str,const char *const pat,const char *const pat_end)
 {
-    if(str&&(*str)&&pat&&(*pat)&&(pat_end-pat>0))
+    if(str&&(*str)&&pat&&(*pat)&&(pat<pat_end))
     {
         const idxT len_pat=(idxT)(pat_end-pat);
         const char *NextPtr[len_pat];
-        KMP_getNextPtr(NextPtr,pat);
+        KMP_getNextPtr(NextPtr,pat,pat_end);
         for(const char *p=str,*q=pat;; ++p)
-            if((*p)&&(*q)&&(*p==*q))
+            if(*p&&(*q)&&(*p==*q))
                 ++q;
             else
             {
@@ -102,7 +110,7 @@ char *str_RingPatSrch(const char *const str,const char *const pat,const char *co
                     if(p-ptr==len_pat)
                         return (char *)ptr;
                 }
-                if(!(*p))
+                if(!*p)
                     break;
                 q=NextPtr[q-pat];
                 while(q&&(*q!=*p))
