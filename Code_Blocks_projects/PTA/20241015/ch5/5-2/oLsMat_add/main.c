@@ -164,15 +164,8 @@ oL_sMat *oLsMat_init(const idxT m,const idxT n)
         matrx=malloc(sizeof(oL_sMat));
         if(matrx)
         {
-            (matrx->mat).cnt=0,(matrx->mat).m=m,(matrx->mat).n=n,(matrx->oList).head1=malloc(m*sizeof(oList_Node *)),(matrx->oList).head2=malloc(n*sizeof(oList_Node *));
-            if(((matrx->oList).head1)&&((matrx->oList).head2))
-            {
-                for(oList_Node **p=(matrx->oList).head1; p-((matrx->oList).head1)<m; ++p)
-                    *p=NULL;
-                for(oList_Node **p=(matrx->oList).head2; p-((matrx->oList).head2)<n; ++p)
-                    *p=NULL;
-            }
-            else
+            (matrx->mat).cnt=0,(matrx->mat).m=m,(matrx->mat).n=n,(matrx->oList).head1=calloc(m,sizeof(oList_Node *)),(matrx->oList).head2=calloc(n,sizeof(oList_Node *));
+            if(!((matrx->oList).head1)||(!(matrx->oList).head2))
                 free((matrx->oList).head1),free((matrx->oList).head2),free(matrx),matrx=NULL;
         }
     }
