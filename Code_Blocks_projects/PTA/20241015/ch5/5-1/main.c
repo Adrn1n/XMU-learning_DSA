@@ -304,6 +304,7 @@ Memory Limit
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /*
 动态数组类型定义:
@@ -430,10 +431,13 @@ int main()
 }
 
 /* 请在这里填写答案 */
+#define dft_cap 16u
 // 创建数组，初始容量为16。
 DynamicArray* DynamicArray_new()
 {
-    return 0;
+    DynamicArray *DA=malloc(sizeof(DynamicArray));
+    DA->capacity=dft_cap,DA->size=0u,DA->data=NULL;
+    return DA;
 }
 
 // 本题中，在位置pos前插入元素*v，也就是*v插入后，它是数组中的第pos个元素，下标从0开始。
@@ -444,6 +448,38 @@ DynamicArray* DynamicArray_new()
 //      3. pos = size，表示在数组的末尾插入元素*v
 void DynamicArray_insert(DynamicArray* this, size_t pos, const Elem* v)
 {
+    if(this&&(pos<=(this->size))&&v)
+    {
+        ++(this->size);
+        if((this->size)>(this->capacity))
+        {
+            if(this->data)
+            {
+                (this->capacity)<<=1;
+                Elem *Data=malloc((this->capacity)*sizeof(Elem));
+                size_t idx=0u;
+                for(Elem *p=Data,*q=(this->data); (idx=p-Data)<(this->size); ++p)
+                    if(idx==pos)
+                        *p=*v;
+                    else
+                        *p=*q++;
+                free(this->data),this->data=Data;
+            }
+        }
+        else
+        {
+            if(!(this->data))
+                this->data=malloc((this->capacity)*sizeof(Elem));
+            Elem tmp=(this->data)[pos];
+            (this->data)[pos]=*v;
+            for(Elem *p=(this->data)+pos+1; p-(this->data)<(this->size); ++p)
+            {
+                *p^=tmp;
+                tmp^=*p;
+                *p^=tmp;
+            }
+        }
+    }
 }
 
 // 删除位置pos的元素，可以假定pos总是合法的，即pos=0,1,...,size - 1，删除后的数组不应该有空档。
@@ -452,36 +488,72 @@ void DynamicArray_insert(DynamicArray* this, size_t pos, const Elem* v)
 //     size = 6, 数组中的元素为0,1,2,3,4,5。删除了pos=3的元素3之后，数组的元素变为0,1,2,4,5，size=5，数组第3个元素为4
 Elem DynamicArray_erase(DynamicArray* this, size_t pos)
 {
-    return 0;
+    Elem res;
+    if(this&&(pos<(this->size))&&(this->data))
+    {
+        --(this->size),res=(this->data)[pos];
+        if(((this->capacity)>dft_cap)&&((this->size)<(this->capacity)>>2))
+        {
+            (this->capacity)>>=1;
+            Elem *Data=malloc((this->capacity)*sizeof(Elem));
+            size_t idx=0u;
+            for(Elem *p=Data,*q=(this->data); (idx=p-Data)<(this->size); ++p)
+                if(idx==pos)
+                    ++q;
+                else
+                    *p=*q++;
+            free(this->data),this->data=Data;
+        }
+        else if(!(this->size))
+            free(this->data),this->data=NULL;
+        else
+            for(Elem *p=(this->data)+pos+1; p-(this->data)<=(this->size); ++p)
+                *(p-1)=*p;
+    }
+    return res;
 }
 
 // 获取位置为pos的元素，假设pos总是合法的。
 Elem DynamicArray_get(const DynamicArray* this, size_t pos)
 {
-    return 0;
+    Elem res;
+    if(this&&(pos<(this->size))&&(this->data))
+        res=(this->data)[pos];
+    return res;
 }
 
 // 将位置为pos的元素设置为*v，假设pos总是合法的。
 void DynamicArray_set(DynamicArray* this, size_t pos, const Elem* v)
 {
+    if(this&&(pos<(this->size))&&(this->data))
+        (this->data)[pos]=*v;
 }
 
 // 返回数组的容量。
 size_t DynamicArray_capacity(const DynamicArray* this)
 {
-    return 0;
+    if(this)
+        return this->capacity;
+    else
+        return 0u;
 }
 
 // 返回数组的元素个数。
 size_t DynamicArray_size(const DynamicArray* this)
 {
-    return 0;
+    if(this)
+        return this->size;
+    else
+        return 0u;
 }
 
 // 返回数组元素是否为空，为空则返回true，否则返回false。
 bool DynamicArray_empty(const DynamicArray* this)
 {
-    return 0;
+    if(!this||(this->size)||(this->data))
+        return false;
+    else
+        return true;
 }
 
 // 重设数组元素个数为new_size，注意，容量可能因此发生变更。
@@ -493,9 +565,28 @@ bool DynamicArray_empty(const DynamicArray* this)
 //       不需要初始化
 void DynamicArray_resize(DynamicArray* this, size_t new_size)
 {
+    if(this)
+    {
+        if(!(this->size)||(new_size>(this->capacity))||(new_size<((this->capacity)>>2)))
+        {
+            for(; (new_size>(this->capacity)); (this->capacity)<<=1);
+            for(; (new_size<((this->capacity)>>2))&&((this->capacity)>dft_cap); (this->capacity)>>=1);
+            Elem *Data=NULL;
+            if(new_size)
+            {
+                Data=malloc((this->capacity)*sizeof(Elem));
+                for(Elem *p=Data,*q=(this->data); (p-Data<new_size)&&(q-(this->data)<(this->size)); ++p,++q)
+                    *p=*q;
+            }
+            free(this->data),this->data=Data;
+        }
+        this->size=new_size;
+    }
 }
 
 // 删除数组。不要忘记释放原有数组的空间，否则会造成内存泄漏。
 void DynamicArray_delete(DynamicArray* this)
 {
+    if(this)
+        this->capacity=0,this->size=0,free(this->data),this->data=NULL;
 }
