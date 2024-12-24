@@ -49,8 +49,9 @@ PTA
 
 XMUOJ
 稀疏矩阵加法(DS112) (http://xmuoj.com/problem/DS112): AC
-稀疏矩阵加法(DS003) (http://xmuoj.com/problem/DS003): AC(需按题目 IO 要求修改 IO 方式)
+稀疏矩阵加法(DS003) (http://xmuoj.com/problem/DS003): AC(需按题目 IO 和处理要求要求修改)
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 
