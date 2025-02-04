@@ -46,8 +46,64 @@ Stack size limit
 #include <stdio.h>
 #include <stdlib.h>
 
+#define N_MAX 1000
+
+typedef short idxT;
+typedef long long valT;
+
+idxT bin_ansrt(const idxT i)
+{
+    idxT ansrt=0;
+    if(i>1)
+    {
+        for(ansrt=2; (ansrt<<1)<=i; ansrt<<=1);
+        ansrt=(idxT)(((i-ansrt)>>1)+(ansrt>>1));
+    }
+    return ansrt;
+}
+
 int main()
 {
-    printf("Hello world!\n");
+    valT T[N_MAX]= {0};
+    idxT n=0;
+    scanf("%hd",&n);
+    if(n>0)
+    {
+        for(valT *p=T; p-T<n; ++p)
+            scanf("%lld",p);
+        idxT i=0,j=0;
+        scanf("%hd%hd",&i,&j);
+        if((i>0)&&(i<=n)&&(j>0)&&(j<=n))
+        {
+            if(T[i-1])
+                if(T[j-1])
+                {
+                    if(i!=j)
+                    {
+                        if(i>j)
+                            i^=j,j^=i,i^=j;
+                        if(i>1)
+                        {
+                            i=bin_ansrt(i);
+                            while(i!=j)
+                            {
+                                j=bin_ansrt(j);
+                                if(i>j)
+                                    i^=j,j^=i,i^=j;
+                            }
+                        }
+                    }
+                    printf("%hd %lld\n",i,T[i-1]);
+                }
+                else
+                    printf("ERROR: T[%hd] is NULL\n",j);
+            else
+                printf("ERROR: T[%hd] is NULL\n",i);
+        }
+        else
+            printf("ERROR\n");
+    }
+    else
+        printf("ERROR\n");
     return 0;
 }
