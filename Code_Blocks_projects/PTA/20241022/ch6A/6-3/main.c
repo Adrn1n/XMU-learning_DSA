@@ -73,8 +73,125 @@ Stack size limit
 #include <stdio.h>
 #include <stdlib.h>
 
+#define N_MAX 10
+
+typedef short idxT;
+typedef char valT;
+
+typedef struct binTreNode_
+{
+    valT val;
+    idxT lc_idx,rc_idx;
+} binTreNode;
+
+idxT binTre_getIn(binTreNode *const T,const idxT n)
+{
+    idxT cnt=0;
+    for(binTreNode *p=T; p-T<n; ++cnt,++p)
+    {
+        char l=0,r=0;
+        scanf("%c %c %c",&(p->val),&l,&r),getchar();
+        if(l=='-')
+            p->lc_idx=-1;
+        else
+            p->lc_idx=(short)(l-'0');
+        if(r=='-')
+            p->rc_idx=-1;
+        else
+            p->rc_idx=(short)(r-'0');
+    }
+    return cnt;
+}
+
+char binTre_isIsomor(const binTreNode *const T1,const idxT n1,const binTreNode *const T2,const idxT n2)
+{
+    if(T1&&T2&&(n1>=0)&&(n2>=0))
+    {
+        if(n1==n2)
+            for(const binTreNode *p=T1,*q=T2; p-T1<n1; q=T2,++p)
+            {
+                for(; q-T2<n2; ++q)
+                    if((p->val)==(q->val))
+                    {
+                        const idxT lc_idx1=p->lc_idx,rc_idx1=p->rc_idx,lc_idx2=q->lc_idx,rc_idx2=q->rc_idx;
+                        if((lc_idx1<n1)&&(rc_idx1<n1)&&(lc_idx2<n2)&&(rc_idx2<n2))
+                        {
+                            if((lc_idx1<0)&&(lc_idx2<0))
+                            {
+                                if((rc_idx1>=0)&&(rc_idx2>=0))
+                                {
+                                    if((T1[rc_idx1].val)!=(T2[rc_idx2].val))
+                                        return 0;
+                                }
+                                else if((rc_idx1>=0)||(rc_idx2>=0))
+                                    return 0;
+                            }
+                            else if(lc_idx1<0)
+                            {
+                                if((rc_idx1<0)||(rc_idx2>=0)||((T1[rc_idx1].val)!=(T2[lc_idx2].val)))
+                                    return 0;
+                            }
+                            else if(lc_idx2<0)
+                            {
+                                if((rc_idx1>=0)||(rc_idx2<0)||((T1[lc_idx1].val)!=(T2[rc_idx2].val)))
+                                    return 0;
+                            }
+                            else
+                            {
+                                if((rc_idx1<0)&&(rc_idx2<0))
+                                {
+                                    if((T1[lc_idx1].val)!=(T2[lc_idx2].val))
+                                        return 0;
+                                }
+                                else if((rc_idx1<0)||(rc_idx2<0))
+                                    return 0;
+                                else
+                                {
+                                    if((((T1[lc_idx1].val)!=(T2[lc_idx2].val))||((T1[rc_idx1].val)!=(T2[rc_idx2].val)))&&(((T1[lc_idx1].val)!=(T2[rc_idx2].val))||((T1[rc_idx1].val)!=(T2[lc_idx2].val))))
+                                        return 0;
+                                }
+                            }
+                        }
+                        else
+                            return -1;
+                        break;
+                    }
+                if(q-T2>=n2)
+                    return 0;
+            }
+        else
+            return 0;
+        return 1;
+    }
+    return -1;
+}
+
 int main()
 {
-    printf("Hello world!\n");
+    idxT n1=0,n2=0;
+    char flag=1;
+    scanf("%hd",&n1),getchar();
+    if((n1>=0)&&(n1<=N_MAX))
+    {
+        binTreNode T1[n1];
+        if(binTre_getIn(T1,n1)==n1)
+        {
+            scanf("%hd",&n2),getchar();
+            if((n2>=0)&&(n2<=N_MAX))
+            {
+                binTreNode T2[n2];
+                if(binTre_getIn(T2,n2)==n2)
+                {
+                    flag=0;
+                    if(binTre_isIsomor(T1,n1,T2,n2))
+                        printf("Yes\n");
+                    else
+                        printf("No\n");
+                }
+            }
+        }
+    }
+    if(flag)
+        printf("ERROR\n");
     return 0;
 }
